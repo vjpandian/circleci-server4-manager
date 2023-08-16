@@ -1,0 +1,34 @@
+version: 2.1
+setup: true
+jobs:
+  helm-test:
+    docker:
+      - image: alpine/helm:3.11.3
+    steps:
+      - run: helm version
+      - run: 
+          name: check if helm credentials are valid
+          command: |
+             helm registry login cciserver.azurecr.io -u $AZURECR_USER -p $AZURECR_PWD >  output.txt
+             file=output.txt
+             if grep -q "Login Succeeded" 'output.txt';
+             then 
+             echo "credentials are valid"
+             else
+             echo "credentials are invalid"
+             fi
+             
+      
+orbs:
+  path-filtering: circleci/path-filtering@0.1.3
+workflows:
+  setup-workflow:
+    jobs:
+      - helm-test:
+          context: server4-deploy
+      - path-filtering/filter:
+          base-revision: main
+          config-path: .circleci/continue-config.yml
+          mapping: |
+            nomad-tf/.* nomad-deploy true
+            server-helm/.* helm-deploy true
