@@ -7,6 +7,7 @@
   - `circleci/aws-cli@3.1`
 - The following contexts:
   - `server4-deploy` with the following env_vars:
+    
     ```
      - $AZURECR_USER
      - $AZURECR_PWD
