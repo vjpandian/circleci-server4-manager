@@ -1,0 +1,206 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@3.1
+
+parameters:
+  helm-release:
+    type: string
+    default: "server"
+  helm-version:
+    type: string
+    default: "4.2.0"
+  values-file:
+    type: string
+    default: "helm-values.yaml"
+  k8s-namespace:
+    type: string
+    default: "circleci-server"
+  cluster-name:
+    type: string
+    default: "cci4-server-cluster"
+  nomad-deploy:
+    type: boolean
+    default: false
+  helm-deploy:
+    type: boolean
+    default: false
+
+executors:
+  tf-light:
+    docker:
+      - image: hashicorp/terraform:light
+    resource_class: large
+
+  machine-ubuntu:
+    machine: true
+    resource_class: medium
+
+commands:
+  install-prerequisites:
+    steps: 
+      - run:
+          name: Installing helm, kubectl and eksctl
+          command: |
+              sh scripts/install_prerequisites.sh
+              mv server-helm/helm-values.yaml .
+
+  pull-helm-charts:
+    steps:
+      - run:
+          name: Login to Azure and Pull Helm Charts
+          command: |
+              helm registry login cciserver.azurecr.io -u $AZURECR_USER -p $AZURECR_PWD    
+              helm pull oci://cciserver.azurecr.io/circleci-server --version << pipeline.parameters.helm-version >> 
+              
+  write-kubeconfig:
+    steps:
+      - run:
+          name: Write Kubeconfig
+          command: |
+              eksctl get clusters 
+              eksctl utils write-kubeconfig --cluster=<< pipeline.parameters.cluster-name >>
+          no_output_timeout: 3h
+
+  get-pod-health:
+    steps:    
+      - run:
+          name: Get Pod Health
+          command: | 
+            kubectl get pods -n << pipeline.parameters.k8s-namespace >>
+
+  stage-helm-charts:  
+    steps:
+      - run:
+          name: Stage Charts
+          command: |
+            tar xvf circleci-server-<< pipeline.parameters.helm-version >>.tgz
+            ls -lah
+            pwd
+    
+  apply-custom-config:
+    steps:
+      - run: 
+          name: Apply custom dispatcher and vm-service config
+          command: |
+            mv custom-config/vm-service/configmap.yaml circleci-server/templates/vm-service/configmap.yaml
+
+  capture-helm-diff:  
+    steps:
+      - run: 
+          name: Capture Diff between deploy versions
+          command: |
+             helm diff upgrade << pipeline.parameters.helm-release >> -f << pipeline.parameters.values-file >> circleci-server -n << pipeline.parameters.k8s-namespace >>
+  
+  helm-deploy-default:  
+    steps: 
+      - run: 
+          name: Deploy helm chart via container
+          command: | 
+              helm registry login cciserver.azurecr.io -u $CUSTENG_AZURECR_USER -p $CUSTENG_AZURECR_PWD
+              helm upgrade << pipeline.parameters.helm-release >> oci://cciserver.azurecr.io/circleci-server -n << pipeline.parameters.k8s-namespace >> --version << pipeline.parameters.helm-version >> -f << pipeline.parameters.values-file >> --username $CUSTENG_AZURECR_USER --password $CUSTENG_AZURECR_PWD
+      
+  helm-deploy-customize:  
+    steps: 
+      - run: 
+          name: Deploy the customized Helm Chart version to Cluster
+          command: |
+             helm upgrade --install << pipeline.parameters.helm-release >> -f << pipeline.parameters.values-file >> circleci-server -n << pipeline.parameters.k8s-namespace >>
+
+  helm-install:  
+    steps:
+      - run: 
+          name: Install Helm Chart version to Cluster
+          command: |
+              helm registry login cciserver.azurecr.io -u $CUSTENG_AZURECR_USER -p $CUSTENG_AZURECR_PWD
+              helm install server circleci-server -n << pipeline.parameters.k8s-namespace >> -f << pipeline.parameters.values-file >>
+
+  tf-init-plan:
+    steps:
+      - run:
+           name: terraform init & plan
+           command: |
+              cd $WORKSPACE
+              terraform init -input=false
+              terraform plan -out tfapply -var="aws_region=$AWS_DEFAULT_REGION" -var="aws_access_key=$AWS_ACCESS_KEY" -var="aws_secret_key=$AWS_SECRET_KEY"
+     
+
+jobs: 
+  nomad-tf-plan:
+    working_directory: /tmp/project
+    executor: tf-light
+    environment:
+      AWS_DEFAULT_REGION: us-west-2
+      WORKSPACE: nomad-tf
+    steps:
+      - checkout
+      - tf-init-plan
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  nomad-tf-apply:
+    executor: tf-light
+    environment:
+       AWS_DEFAULT_REGION: us-west-2
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: terraform
+          command: |
+            cd nomad-tf
+            terraform apply -auto-approve tfapply
+          no_output_timeout: 3h     
+      - persist_to_workspace:
+          root: .
+          paths:
+            - . 
+        
+    
+  deploy-helm-chart:
+    machine: 
+      image: ubuntu-2204:2023.02.1
+    resource_class: medium
+    steps:
+      - checkout
+      - aws-cli/setup:
+          profile-name: circle4-deploy-user
+      - install-prerequisites
+      - pull-helm-charts
+      - write-kubeconfig
+      - get-pod-health
+      - apply-custom-config
+      - capture-helm-diff
+      - helm-deploy-customize
+    
+            
+workflows:
+  server4-helm-deploy:
+    when: << pipeline.parameters.helm-deploy >>
+    jobs:
+      - deploy-helm-chart:
+           context: server4-deploy
+           filters:
+             branches:
+               only:
+                 - main
+
+  nomad-deploy:
+    when: << pipeline.parameters.nomad-deploy >>
+    jobs:
+      - custeng4-tf-plan:
+           context: server4-deploy
+           filters:
+             branches:
+               only:
+                 - main
+      - custeng4-tf-apply:
+           context: server4-deploy
+           filters:
+             branches:
+               only:
+                 - main
+           requires:
+             - nomad-tf-plan
