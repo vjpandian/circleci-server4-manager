@@ -1,0 +1,64 @@
+global:
+  domainName: "<full-domain-name-of-your-install>"
+  license: '<license>'
+  container:
+    registry: cciserver.azurecr.io
+    org:
+
+apiToken: "<circleci-api-token>"
+sessionCookieKey: "<session-cookie-key>"
+
+keyset:
+  signing: '<generated-signing-key>'
+  encryption: '<generated-encryption-key>'
+
+nomad:
+  server:
+    gossip:
+      encryption:
+        key: "<nomad-gossip-encryption-key>"
+    rpc:
+      mTLS:
+        enabled: true
+        CACertificate: "<nomad-mtls-base64-ca>"
+        certificate: "<nomad-mtls-base64-cert>"
+        privateKey: "<nomad-mtls-base64-key>"
+
+object_storage:
+  bucketName: '<s3-bucket-name>'
+  s3:
+    enabled: true
+    endpoint: "<aws-region-url>" # ex: https://s3.us-east-1.amazonaws.com
+    region: "<aws-region>"
+    irsaRole: "<arn-of-irsa-role>"
+
+github:
+  clientId: "<generated-github-client-id>"
+  clientSecret: "<generated-github-client-secret>"
+
+vm_service:
+  providers:
+    ec2:
+      enabled: true
+      region: "<aws-region>"
+      subnets:
+      - "<subnet-id>"
+      securityGroupId: "<security-group-id>"
+      irsaRole: "<arn-of-irsa-role>"
+
+mongodb:
+  auth:
+    rootPassword: "<mongodb-root-password>"
+    password: "<mongodb-password>"
+
+postgresql:
+  auth:
+    postgresPassword: "<postgres-password>"
+
+pusher:
+  secret: "<pusher-secret>"
+
+rabbitmq:
+  auth:
+    password: "<rabbitmq-password>"
+    erlangCookie: "<rabbitmq-erlang-cookie>"
