@@ -9,7 +9,7 @@ parameters:
     default: "server"
   helm-version:
     type: string
-    default: "4.2.0"
+    default: "4.0.4"
   values-file:
     type: string
     default: "helm-values.yaml"
@@ -43,7 +43,7 @@ commands:
           name: Installing helm, kubectl and eksctl
           command: |
               sh scripts/install_prerequisites.sh
-              mv server-helm/helm-values.yaml .
+              mv server-helm/<< pipeline.parameters.values-file >>  .
 
   pull-helm-charts:
     steps:
