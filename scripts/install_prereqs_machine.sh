@@ -6,6 +6,10 @@ tar -zxvf helm-v3.11.2-linux-amd64.tar.gz
 sudo mv linux-amd64/helm /usr/local/bin/helm
 helm version
 
+curl -LO https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip
+tar -zxvf terraform_1.6.6_linux_amd64.zip
+ls -lah
+
 echo "----------------------------------------"
 echo "        Installing Helm-Diff"
 echo "----------------------------------------"
@@ -32,7 +36,4 @@ eksctl version
 echo "----------------------------------------"
 echo "        Installing Terraform"
 echo "----------------------------------------"   
-git clone --depth 1 --branch 1.6.0 https://github.com/hashicorp/terraform
-cd terraform
-go install
-echo $PATH
+
