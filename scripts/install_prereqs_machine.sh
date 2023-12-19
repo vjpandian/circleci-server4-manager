@@ -9,7 +9,7 @@ helm version
 
 sudo apt install unzip zip -y
 curl "https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip" -o "terraform_1.6.0.zip"
-unzip terraform_1.6.0.zip
+sudo unzip -o terraform_1.6.0.zip
 ls -lah
 
 echo "----------------------------------------"
