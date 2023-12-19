@@ -6,12 +6,6 @@ tar -zxvf helm-v3.11.2-linux-amd64.tar.gz
 sudo mv linux-amd64/helm /usr/local/bin/helm
 helm version
 
-
-sudo apt install unzip zip -y
-curl "https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip" -o "terraform_1.6.0.zip"
-sudo unzip -o terraform_1.6.0.zip
-ls -lah
-
 echo "----------------------------------------"
 echo "        Installing Helm-Diff"
 echo "----------------------------------------"
@@ -39,3 +33,7 @@ echo "----------------------------------------"
 echo "        Installing Terraform"
 echo "----------------------------------------"   
 
+sudo apt install unzip zip -y
+curl "https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip" -o "terraform_1.6.0.zip"
+sudo unzip -o terraform_1.6.0.zip
+sudo mv terraform /usr/local/bin/
