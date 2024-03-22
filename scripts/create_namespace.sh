@@ -1,20 +1,14 @@
 
+echo "Updating kubeconfig"
 eksctl utils write-kubeconfig --cluster=$CLUSTER
 
-# Check if the namespace already exists
-regcred_exists=$(kubectl get secret $REGCRED_SECRET -n $NAMESPACE 2>/dev/null)
+echo "Check if the namespace already exists"
+namespace_exists=$(kubectl get namespace $NAMESPACE 2>/dev/null)
 
-
-if [ -z "$regcred_exists" ]; then
+if [ -z "$namespace_exists" ]; then
   # Create the namespace
-  # Create regcred secret
-  kubectl -n $NAMESPACE create secret docker-registry $REGCRED_SECRET \
-    --docker-server=https://cciserver.azurecr.io \
-    --docker-username=$CUSTENG_AZURECR_USER \
-    --docker-password=$CUSTENG_AZURECR_PWD \
-    --docker-email=vijay@circleci.com \
-    --dry-run=client -o yaml | kubectl -n $NAMESPACE apply -f -
-  echo "Secret $REGCRED_SECRET was created in $NAMESPACE"
+  kubectl create namespace $NAMESPACE
+  echo "Namespace '$NAMESPACE' created."
 else
-  echo "$REGCRED_SECRET already exists....will skip creation"
+  echo "Namespace '$NAMESPACE' already exists...will skip namespace creation"
 fi
