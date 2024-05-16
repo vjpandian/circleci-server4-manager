@@ -1,9 +1,8 @@
 echo "----------------------------------------"
 echo "        Installing Terraform"
 echo "----------------------------------------"   
--fLSs
 sudo rm -rf terraform/
 sudo apt install unzip zip -y
-curl -fLSs "https://releases.hashicorp.com/terraform/$TF_VERSION/terraform_$TF_VERSION_linux_amd64.zip" -o "terraform_$TF_VERSION.zip"
-sudo unzip -o terraform_$TF_VERSION.zip
+curl -fLSs "https://releases.hashicorp.com/terraform/1.8.2/terraform_1.8.2_linux_amd64.zip" -o "terraform_1.8.2.zip"
+sudo unzip -o terraform_1.8.2.zip
 sudo mv terraform /usr/local/bin/
