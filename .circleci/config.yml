@@ -1,34 +1,33 @@
 version: 2.1
-setup: true
+
+executors:
+  ubuntu-default:
+    machine: 
+      image: ubuntu-2204:current
+    resource_class: medium
+
 jobs:
-  helm-test:
-    docker:
-      - image: alpine/helm:3.11.3
+  test-prereqs:
+    executor: ubuntu-default
     steps:
-      - run: helm version
+      - checkout
       - run: 
-          name: check if helm credentials are valid
-          command: |
-             helm registry login cciserver.azurecr.io -u $AZURECR_USER -p $AZURECR_PWD >  output.txt
-             file=output.txt
-             if grep -q "Login Succeeded" 'output.txt';
-             then 
-             echo "credentials are valid"
-             else
-             echo "credentials are invalid"
-             fi
-             
-      
-orbs:
-  path-filtering: circleci/path-filtering@0.1.3
-workflows:
-  setup-workflow:
+          name: test init script for ubuntu
+          command: sh install_prereqs_machine.sh
+
+  test-prereqs-param:
+    executor: ubuntu-default
+    environment:
+       HELM_VERSION: "v3.15.0"
+       TERRAFORM_VERSION: "1.8.3"
+    steps:
+      - checkout
+      - run: 
+          name: test parameterized init script for ubuntu
+          command: sh install_prereqs_parameterized.sh
+
+executor:
+  main:
     jobs:
-      - helm-test:
-          context: server4-deploy
-      - path-filtering/filter:
-          base-revision: main
-          config-path: .circleci/continue-config.yml
-          mapping: |
-            nomad-tf/.* nomad-deploy true
-            server-helm/.* helm-deploy true
+      - test-prereqs
+      - test-prereqs-param
