@@ -26,7 +26,7 @@ jobs:
           name: test parameterized init script for ubuntu
           command: sh install_prereqs_parameterized.sh
 
-executor:
+workflows:
   main:
     jobs:
       - test-prereqs
