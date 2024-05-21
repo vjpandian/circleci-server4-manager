@@ -13,7 +13,7 @@ jobs:
       - checkout
       - run: 
           name: test init script for ubuntu
-          command: sh install_prereqs_machine.sh
+          command: sh scripts/install_prereqs_machine.sh
 
   test-prereqs-param:
     executor: ubuntu-default
@@ -24,7 +24,7 @@ jobs:
       - checkout
       - run: 
           name: test parameterized init script for ubuntu
-          command: sh install_prereqs_parameterized.sh
+          command: sh scripts/install_prereqs_parameterized.sh
 
 workflows:
   main:
