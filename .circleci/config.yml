@@ -39,3 +39,4 @@ workflows:
     jobs:
       - test-prereqs
       - test-prereqs-param
+      - test-default
