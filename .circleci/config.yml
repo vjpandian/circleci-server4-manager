@@ -7,6 +7,14 @@ executors:
     resource_class: medium
 
 jobs:
+  test-default:
+    executor: ubuntu-default
+    steps:
+      - checkout
+      - run: 
+          name: test init script for ubuntu
+          command: sh scripts/install_prerequisites.sh
+          
   test-prereqs:
     executor: ubuntu-default
     steps:
