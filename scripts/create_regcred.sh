@@ -3,7 +3,7 @@
 eksctl utils write-kubeconfig --cluster=$CLUSTER
 
 # Check if the namespace already exists
-regcred_exists=$(kubectl get secret $REGCRED_SECRET -n $NAMESPACE 2>/dev/null)
+regcred_exists=$(kubectl get secret $REGCRED_SECRET -n $NAMESPACE 2>/dev/null --ignore-not-found)
 
 
 if [ -z "$regcred_exists" ]; then
