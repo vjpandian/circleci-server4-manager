@@ -2,6 +2,8 @@
 
 namespace_exists=$(kubectl get namespace $NAMESPACE 2>/dev/null --ignore-not-found)
 
+echo $namespace_exists
+
 if [ -z "$namespace_exists" ]; then
     echo "Namespace $NAMESPACE will be created."
     kubectl create ns $NAMESPACE
