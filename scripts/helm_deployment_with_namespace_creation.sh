@@ -1,5 +1,4 @@
 
-
 if [ -z "${NAMESPACE}" ]; then
   echo "NAMESPACE is not set. Exiting..."
   exit 1
@@ -9,10 +8,10 @@ major_version=$(echo "$HELM_VERSION" | cut -d '.' -f 1)
 minor_version=$(echo "$HELM_VERSION" | cut -d '.' -f 2)
 
 
-if [[ "$major_version" -eq 4 && "$minor_version" -le 2 ]]; then
+if [ "$major_version" -eq 4 ] && [ "$minor_version" -le 2 ]; then
     VALUES_FILE="${NAMESPACE}-pre_43_helm-values.yaml"
     echo "$VALUES_FILE will be used for helm deploy"
-elif [[ "$major_version" -eq 4 && "$minor_version" -ge 3 && "$minor_version" -le 5 ]]; then
+elif [ "$major_version" -eq 4 ] && [ "$minor_version" -ge 3 ] && [ "$minor_version" -le 5 ]; then
     VALUES_FILE="${NAMESPACE}-post_43_helm-values.yaml"
     echo "$VALUES_FILE will be used for helm deploy"
 else
