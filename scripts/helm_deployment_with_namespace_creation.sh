@@ -8,12 +8,12 @@ fi
 major_version=$(echo "$HELM_VERSION" | cut -d '.' -f 1)
 minor_version=$(echo "$HELM_VERSION" | cut -d '.' -f 2)
 
-# Determine which YAML file to use based on the version
+
 if [[ "$major_version" -eq 4 && "$minor_version" -le 2 ]]; then
-    VALUES_FILE="$NAMESPACE-pre_43_helm-values.yaml"
+    VALUES_FILE="${NAMESPACE}-pre_43_helm-values.yaml"
     echo "$VALUES_FILE will be used for helm deploy"
 elif [[ "$major_version" -eq 4 && "$minor_version" -ge 3 && "$minor_version" -le 5 ]]; then
-    VALUES_FILE="$NAMESPACE-post_43_helm-values.yaml"
+    VALUES_FILE="${NAMESPACE}-post_43_helm-values.yaml"
     echo "$VALUES_FILE will be used for helm deploy"
 else
     echo "Version not supported: $HELM_VERSION"
