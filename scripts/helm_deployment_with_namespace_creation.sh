@@ -1,8 +1,17 @@
 
 
-namespace_exists=$(kubectl get namespace $NAMESPACE 2>/dev/null --ignore-not-found)
+if [ -z "${NAMESPACE}" ]; then
+  echo "NAMESPACE is not set. Exiting..."
+  exit 1
+fi
 
-echo $namespace_exists
+
+if [ -z "${values_file}" ]; then
+  echo "Helm values var is not set. Exiting..."
+  exit 1
+fi
+
+namespace_exists=$(kubectl get namespace $NAMESPACE 2>/dev/null --ignore-not-found)
 
 if [ -z "$namespace_exists" ]; then
     echo "Namespace $NAMESPACE will be created."

@@ -3,7 +3,7 @@ echo "Updating kubeconfig"
 eksctl utils write-kubeconfig --cluster=$CLUSTER
 
 echo "Check if the namespace already exists"
-namespace_exists=$(kubectl get namespace $NAMESPACE 2>/dev/null)
+namespace_exists=$(kubectl get namespace $NAMESPACE 2>/dev/null --ignore-not-found)
 
 if [ -z "$namespace_exists" ]; then
   # Create the namespace

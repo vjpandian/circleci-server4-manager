@@ -2,6 +2,11 @@
 
 eksctl utils write-kubeconfig --cluster=$CLUSTER
 
+if [ -z "${REGCRED_SECRET}" ]; then
+  echo "REGCRED_SECRET var is not set. Exiting..."
+  exit 1
+fi
+
 # Check if the namespace already exists
 regcred_exists=$(kubectl get secret $REGCRED_SECRET -n $NAMESPACE 2>/dev/null --ignore-not-found)
 
