@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # Define colors for pretty output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[0;33m'
-NC='\033[0m' # No Color
+RED="\033[0;31m"
+GREEN="\033[0;32m"
+YELLOW="'\033[0;33m"
+ENDCOLOR="\e[0m"
 
 
 # Function to print a section header
 print_section() {
-  echo -e "${YELLOW}$1${NC}"
+  echo -e "${YELLOW}$1${ENDCOLOR}"
 }
 
 print_section "Setting kubeconfig using eksctl"
@@ -20,7 +20,7 @@ node_group_name=$(aws eks list-nodegroups --cluster-name "$CLUSTER" | jq -r '.no
 print_section "Fetching nodegroup name from EKS using awscli"
 
 if [[ -z "$node_group_name" ]]; then
-  echo -e "${RED}No managed node groups found for cluster: $CLUSTER${NC}"
+  echo -e "${RED}No managed node groups found for cluster: $CLUSTER${ENDCOLOR}"
   exit 1
 fi
 
