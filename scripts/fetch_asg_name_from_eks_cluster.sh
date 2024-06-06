@@ -9,7 +9,7 @@ ENDCOLOR="\e[0m"
 
 # Function to print a section header
 print_section() {
-  echo -e "${YELLOW}$1${ENDCOLOR}"
+  echo -e "${GREEN}$1${ENDCOLOR}"
 }
 
 print_section "Setting kubeconfig using eksctl"
@@ -17,7 +17,7 @@ eksctl utils write-kubeconfig --cluster=$CLUSTER
 
 node_group_name=$(aws eks list-nodegroups --cluster-name "$CLUSTER" | jq -r '.nodegroups[1]')
 
-echo "${GREEN}Nodgegroup name is ${node_group_name}${ENDCOLOR}"
+print_section "Nodgegroup name is ${node_group_name}"
 
 print_section "Fetching nodegroup name from EKS using awscli"
 
