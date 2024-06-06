@@ -17,6 +17,8 @@ eksctl utils write-kubeconfig --cluster=$CLUSTER
 
 node_group_name=$(aws eks list-nodegroups --cluster-name "$CLUSTER" | jq -r '.nodegroups[1]')
 
+echo "${GREEN}Nodgegroup name is ${node_group_name}${ENDCOLOR}"
+
 print_section "Fetching nodegroup name from EKS using awscli"
 
 if [[ -z "$node_group_name" ]]; then
