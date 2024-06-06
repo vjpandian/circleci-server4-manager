@@ -12,14 +12,15 @@ print_section() {
   echo -e "${GREEN}$1${ENDCOLOR}"
 }
 
-print_section "Setting kubeconfig using eksctl"
+echo "Setting kubeconfig using eksctl"
+
 eksctl utils write-kubeconfig --cluster=$CLUSTER
 
 node_group_name=$(aws eks list-nodegroups --cluster-name "$CLUSTER" | jq -r '.nodegroups[1]')
 
-print_section "Nodgegroup name is ${node_group_name}"
+echo "Nodgegroup name is ${node_group_name}"
 
-print_section "Fetching nodegroup name from EKS using awscli"
+echo "Fetching nodegroup name from EKS using awscli"
 
 if [[ -z "$node_group_name" ]]; then
   echo -e "${RED}No managed node groups found for cluster: $CLUSTER${ENDCOLOR}"
